@@ -18,7 +18,11 @@ A minimal React app built with Vite (JavaScript, no TypeScript).
 index.html        # HTML template, loads src/main.jsx
 vite.config.js    # Vite configuration
 src/main.jsx      # entry point, mounts <App /> into #root
-src/App.jsx       # root component
+src/App.jsx       # root component, composes the page sections
+src/index.css     # design tokens and reset
+src/media.js      # breakpoints and useMediaQuery hook
+src/assets/       # images used by the page
+src/components/   # one folder per component: <Name>/<Name>.jsx + <Name>.css
 ```
 
 ## Commands
@@ -32,6 +36,7 @@ src/App.jsx       # root component
 
 - Keep the project minimal: don't add files, dependencies, or configs unless needed.
 - Use only function components and hooks; component files use `.jsx`, names use PascalCase.
+- Each component lives in its own folder: `src/components/<Name>/<Name>.jsx` plus `<Name>.css` (and any helper used only by that component).
 - After making changes, make sure `npm run build` passes without errors.
 - Don't commit `node_modules` or `dist`.
 

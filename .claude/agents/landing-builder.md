@@ -28,7 +28,7 @@ If a value cannot be determined reliably from the image (exact font, a hex color
 ## Implementation
 
 - Single page: `src/App.jsx` composes sections in the order they appear in the design.
-- One component per section in `src/components/` (e.g. `Header.jsx`, `Hero.jsx`, `Slider.jsx`, `Tiles.jsx`, `ShaderSection.jsx`), each with its own plain CSS file next to it. Shared tokens (colors, fonts, easing, durations) go into CSS custom properties in `src/index.css`.
+- One folder per component in `src/components/`, named in PascalCase and holding the component and its plain CSS file: `src/components/Header/Header.jsx` + `Header.css`, `src/components/Hero/Hero.jsx` + `Hero.css`, etc. Helpers used only by one component live in its folder (e.g. `ShaderSection/shaderSectionRenderer.js`). Import other components and assets by relative path (`../Logo/Logo.jsx`, `../../assets/...`). Shared tokens (colors, fonts, easing, durations) go into CSS custom properties in `src/index.css`.
 - Easing token: `--ease: cubic-bezier(0.4, 0, 0.2, 1)`; use `ease-out` for scaling, as AGENTS.md requires.
 - Images/assets go into `src/assets/`.
 - Plain CSS and plain WebGL — do not add libraries (Tailwind, three.js, animation libs, etc.) without asking the user first.

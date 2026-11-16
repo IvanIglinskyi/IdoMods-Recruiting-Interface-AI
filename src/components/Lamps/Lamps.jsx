@@ -1,6 +1,6 @@
-import beige from '../assets/lamp-beige.png'
-import olive from '../assets/lamp-olive.png'
-import terracotta from '../assets/lamp-terracotta.png'
+import beige from '../../assets/lamp-beige.png'
+import olive from '../../assets/lamp-olive.png'
+import terracotta from '../../assets/lamp-terracotta.png'
 import './Lamps.css'
 
 /*

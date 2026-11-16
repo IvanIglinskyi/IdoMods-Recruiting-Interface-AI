@@ -1,10 +1,10 @@
 import { Fragment } from 'react'
-import thoroPerson from '../assets/thoro-person.jpg'
-import colorWheel from '../assets/color-wheel.png'
-import laptop from '../assets/laptop.png'
-import catalogTablet from '../assets/catalog-tablet.png'
-import phoneSmall from '../assets/phone-small.png'
-import phoneLarge from '../assets/phone-large.png'
+import thoroPerson from '../../assets/thoro-person.jpg'
+import colorWheel from '../../assets/color-wheel.png'
+import laptop from '../../assets/laptop.png'
+import catalogTablet from '../../assets/catalog-tablet.png'
+import phoneSmall from '../../assets/phone-small.png'
+import phoneLarge from '../../assets/phone-large.png'
 import './Tiles.css'
 
 // Promo tiles. Each tile has one media group (`.tile__media--<id>`, positioned in Tiles.css);

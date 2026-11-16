@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import Logo from './Logo.jsx'
-import { MEDIA, useMediaQuery } from '../media.js'
+import Logo from '../Logo/Logo.jsx'
+import { MEDIA, useMediaQuery } from '../../media.js'
 import './Header.css'
 
 const NAV_ITEMS = [

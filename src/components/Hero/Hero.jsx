@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import Header from './Header.jsx'
-import { MEDIA, useMediaQuery } from '../media.js'
-import Lamps from './Lamps.jsx'
-import rock from '../assets/rock.png'
-import interior from '../assets/slider2.jpg'
+import Header from '../Header/Header.jsx'
+import { MEDIA, useMediaQuery } from '../../media.js'
+import Lamps from '../Lamps/Lamps.jsx'
+import rock from '../../assets/rock.png'
+import interior from '../../assets/slider2.jpg'
 import './Hero.css'
 
 const AUTOPLAY_MS = 3000
