@@ -1,0 +1,28 @@
+/* Features row: measured at 1508 px from design/components-design/features-tiles.png (×1.6774, page frame 899 px). */
+.features {
+  padding: 79px 0 0 139px;
+  color: var(--color-text);
+}
+
+.features__list {
+  display: grid;
+  grid-template-columns: repeat(5, 256.6px);
+}
+
+.features__icon {
+  display: block;
+}
+
+.features__title {
+  margin: 19px 0 0;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.features__text {
+  margin: 4px 0 0;
+  font-size: 10.5px;
+  line-height: 14px;
+  color: var(--color-text-muted);
+}
