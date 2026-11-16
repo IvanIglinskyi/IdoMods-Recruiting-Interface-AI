@@ -104,7 +104,8 @@ All animations follow [AGENTS.md](AGENTS.md):
 ## Project structure
 
 ```
-index.html                         # HTML template, font link
+index.html                         # HTML template, font link, SEO and Open Graph meta tags
+public/favicon.svg                 # Favicon
 src/main.jsx                       # Entry point
 src/App.jsx                        # Page composition
 src/index.css                      # Design tokens, reset, breakpoint notes
@@ -113,7 +114,7 @@ src/components/<Name>/             # One folder per component: <Name>.jsx + <Nam
 src/assets/                        # Images used by the page (footer logos in assets/footer)
 design/components-design/          # Design screenshots used as references
 design/misc/                       # Original source images
-AGENTS.md                          # Rules for AI agents (stack, animations, sections)
+AGENTS.md                          # Rules for AI agents (stack, animations, responsive, a11y, git)
 CLAUDE.md                          # Claude Code instructions (imports AGENTS.md)
 .claude/agents/landing-builder.md  # Agent that builds sections from design screenshots
 ```

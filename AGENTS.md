@@ -4,7 +4,9 @@ Instructions for AI agents working in this repository.
 
 ## Project
 
-A minimal React app built with Vite (JavaScript, no TypeScript).
+A single-page landing page for the SOLLUX lighting store, built with React + Vite (JavaScript, no TypeScript). Every section is recreated 1:1 from design screenshots at a 1508 px page width and made responsive down to 320 px.
+
+Page sections, top to bottom: Header, Hero slider (with interactive Lamps), Features, Tiles, ShaderSection, Footer.
 
 ## Stack
 
@@ -23,6 +25,9 @@ src/index.css     # design tokens and reset
 src/media.js      # breakpoints and useMediaQuery hook
 src/assets/       # images used by the page
 src/components/   # one folder per component: <Name>/<Name>.jsx + <Name>.css
+public/           # static files served as-is (favicon.svg)
+design/components-design/  # design screenshots — the reference for every section
+design/misc/               # original source images supplied by the designer
 ```
 
 ## Commands
@@ -37,8 +42,44 @@ src/components/   # one folder per component: <Name>/<Name>.jsx + <Name>.css
 - Keep the project minimal: don't add files, dependencies, or configs unless needed.
 - Use only function components and hooks; component files use `.jsx`, names use PascalCase.
 - Each component lives in its own folder: `src/components/<Name>/<Name>.jsx` plus `<Name>.css` (and any helper used only by that component).
-- After making changes, make sure `npm run build` passes without errors.
+- After making changes, make sure `npm run build` passes without errors or warnings.
 - Don't commit `node_modules` or `dist`.
+- Images used by the page go into `src/assets/` (optimised copies, about 2× their display size); originals in `design/misc/` are never modified.
+- Don't invent content, colours or fonts: take them from the design; if something can't be read reliably, ask the user. Temporary placeholders must be reported to the user.
+
+## Responsive layout
+
+Breakpoints are defined once in `src/media.js` (CSS repeats the same values, see `src/index.css`):
+
+- ≥ 1440 px — desktop design, 1:1 at 1508 px; wider screens keep full-bleed backgrounds with content centred in a 1508 px column.
+- 1024–1439 px — laptop, fluid sizes (`clamp()`, `%`).
+- 768–1023 px — tablet, burger menu, fewer columns.
+- < 768 px — mobile, stacked layout; must work down to 320 px.
+
+Rules:
+
+- Every new or changed section must work at all breakpoints, with no horizontal page scroll.
+- The desktop layout at 1508 px must not regress when changing smaller breakpoints.
+- Hover effects only for hover-capable pointers (`@media (hover: hover)`); touch targets on mobile are at least 40 px.
+
+## Accessibility
+
+- Semantic HTML: `<button>` for actions, `<a>` for navigation, headings in order, Polish `alt` / `aria-label` texts (decorative images use `alt=""`).
+- Every animation respects `prefers-reduced-motion` (no autoplay, parallax or zoom; at most a simple fade).
+
+## Working with the dev server
+
+The Vite dev server is usually running while you work. A half-written module can get cached by HMR and break the page ("does not provide an export named 'default'").
+
+- Write new files completely before importing them; change existing files with single, complete edits (no partial shell writes into `src/`).
+- After finishing, load the page and confirm it renders. If it is broken but the files on disk are correct, re-save the affected file or restart the dev server.
+- Stop any extra servers you start (e.g. `vite preview`) and make sure their ports are freed.
+
+## Git
+
+- Commit author: Ivan Iglinskyi. Do not add Claude (or any AI) as a co-author and add no "Co-Authored-By" or "Generated with" lines.
+- Commit messages are in English: a clear title, then a body with sections describing what changed and why.
+- Commit or push only when the user asks.
 
 ## Animations
 
@@ -61,6 +102,8 @@ Lamps in the hero section are a place to show creativity through animation, e.g.
 
 - turning a lamp on when it's clicked;
 - lamps moving/reacting as the cursor moves.
+
+Slow ambient loops (e.g. the lamps' 7 s idle float) are allowed outside the 200–800 ms duration ranges, which apply to interactions and transitions. They still use `--ease` and only `transform`/`opacity`.
 
 ### Slider
 
