@@ -3,12 +3,18 @@
 
   --color-white: #ffffff;
   --color-black: #000000;
+  --color-ink: #2c281f;
+  --color-yellow: #f2bf25;
+  --color-star: #fd9011;
   --hero-background:
     radial-gradient(120% 90% at 100% 70%, rgb(255 200 150 / 0.55), transparent 60%),
     linear-gradient(180deg, #84583b 0%, #a56d4a 12%, #c0855c 30%, #e3a06c 50%, #f4b682 70%, #fbc08d 100%);
 
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
   --duration-hover: 250ms;
+  --duration-slide-fade: 600ms;
+  --duration-slide-scale: 800ms;
+  --autoplay-interval: 3000ms;
 }
 
 *,
@@ -31,10 +37,12 @@ ul {
   list-style: none;
 }
 
-/* Hero block: carries the page background; the header sits on it transparently.
-   Gradient is a stand-in sampled from design/landing.png until the real photo is provided. */
-.hero {
-  position: relative;
-  height: 846px;
-  background: var(--hero-background);
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

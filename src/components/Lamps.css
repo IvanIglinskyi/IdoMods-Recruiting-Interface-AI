@@ -1,0 +1,166 @@
+/* Each lamp: button (cursor parallax) > float (idle drift) > body (press feedback) > image + light layers.
+   --px / --py (-1…1, smoothed cursor position) are set on .hero by Hero.jsx. */
+.lamp {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transform:
+    translate3d(calc(var(--px, 0) * var(--depth) * 1px), calc(var(--py, 0) * var(--depth) * 0.6px), 0)
+    rotate(calc(var(--px, 0) * var(--tilt) * 1deg));
+}
+
+.lamp:focus-visible {
+  outline: none;
+}
+
+.lamp:focus-visible .lamp__body {
+  outline: 1px solid var(--color-white);
+  outline-offset: 4px;
+  border-radius: 24px;
+}
+
+.lamp__float {
+  display: block;
+  animation: lamp-float 7s var(--ease) var(--float-delay, 0s) infinite alternate;
+}
+
+.lamp__body {
+  position: relative;
+  display: block;
+  transition: transform var(--duration-hover) ease-out;
+}
+
+.lamp:hover .lamp__body {
+  transform: scale(1.02);
+}
+
+.lamp:active .lamp__body {
+  transform: scale(0.98);
+}
+
+.lamp__image {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+
+/* Light layers — opacity/transform only. */
+.lamp__beam,
+.lamp__halo,
+.lamp__lens {
+  position: absolute;
+  left: var(--lens-x);
+  top: var(--lens-y);
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 500ms var(--ease),
+    transform 700ms ease-out;
+}
+
+/* Soft light cast travelling away from the lens, behind the lamp body. */
+.lamp__beam {
+  width: 560px;
+  height: 340px;
+  margin-top: -170px;
+  background: radial-gradient(
+    ellipse 100% 50% at 0% 50%,
+    rgb(255 226 170 / 0.6) 0%,
+    rgb(255 205 140 / 0.28) 38%,
+    rgb(255 190 120 / 0) 72%
+  );
+  transform-origin: 0 50%;
+  transform: rotate(var(--beam-angle)) scaleX(0.6);
+}
+
+/* Bloom around the rim, over the lamp body. */
+.lamp__halo {
+  width: calc(var(--lens-w) * 1.9);
+  aspect-ratio: 1;
+  background: radial-gradient(closest-side, rgb(255 222 160 / 0.55), rgb(255 200 130 / 0.18) 55%, rgb(255 190 120 / 0));
+  transform: translate(-50%, -50%) scale(0.7);
+  mix-blend-mode: screen;
+}
+
+/* The lit diffuser itself. */
+.lamp__lens {
+  width: var(--lens-w);
+  height: var(--lens-h);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, #fffaf0 0%, #fff0d2 45%, rgb(255 222 170 / 0.85) 75%, rgb(255 210 150 / 0));
+  transform: translate(-50%, -50%) rotate(var(--lens-angle)) scale(0.85);
+  mix-blend-mode: screen;
+}
+
+.lamp.is-on :is(.lamp__beam, .lamp__halo, .lamp__lens) {
+  opacity: 1;
+  animation: lamp-flicker 700ms var(--ease);
+}
+
+.lamp.is-on .lamp__beam {
+  transform: rotate(var(--beam-angle)) scaleX(1);
+}
+
+.lamp.is-on .lamp__halo {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.lamp.is-on .lamp__lens {
+  transform: translate(-50%, -50%) rotate(var(--lens-angle)) scale(1);
+}
+
+@keyframes lamp-float {
+  from {
+    transform: translate3d(0, -5px, 0) rotate(-0.6deg);
+  }
+  to {
+    transform: translate3d(0, 5px, 0) rotate(0.6deg);
+  }
+}
+
+/* A short warm-up flicker, like a bulb catching. */
+@keyframes lamp-flicker {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.7;
+  }
+  32% {
+    opacity: 0.25;
+  }
+  55% {
+    opacity: 0.9;
+  }
+  68% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lamp {
+    transform: none;
+  }
+
+  .lamp__float,
+  .lamp.is-on :is(.lamp__beam, .lamp__halo, .lamp__lens) {
+    animation: none;
+  }
+
+  .lamp__body,
+  .lamp__beam,
+  .lamp__halo,
+  .lamp__lens {
+    transition-property: opacity;
+  }
+}

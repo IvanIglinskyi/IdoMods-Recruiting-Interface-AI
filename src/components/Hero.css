@@ -1,0 +1,260 @@
+/* Hero: fixed-width composition measured at 1508 × 846 (design/components-design/hero.png ×1.6436).
+   Each slide owns its background (lamps slide: CSS gradient + cut-outs; image slide: cover photo). */
+.hero {
+  position: relative;
+  height: 846px;
+  overflow: hidden;
+  background: var(--color-ink);
+}
+
+.hero > .header {
+  position: relative;
+  z-index: 3;
+}
+
+/* Slides — stacked, crossfaded */
+.hero__slides {
+  position: absolute;
+  inset: 0;
+}
+
+.hero__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  /* Outgoing slide stays opaque underneath until the incoming one has fully faded in — no background flash. */
+  transition: opacity 0s var(--duration-slide-fade);
+}
+
+.hero__slide.is-active {
+  z-index: 1;
+  opacity: 1;
+  transition: opacity var(--duration-slide-fade) var(--ease);
+}
+
+.hero__slide--lamps {
+  background: var(--hero-background);
+}
+
+/* Visual layer: enters at 1.05 and settles to 1.0; the outgoing slide keeps its scale until it has faded out. */
+.hero__media {
+  position: absolute;
+  inset: 0;
+  transform: scale(1.05);
+  transition: transform 0s var(--duration-slide-fade);
+}
+
+.hero__slide.is-active .hero__media {
+  transform: scale(1);
+  transition: transform var(--duration-slide-scale) ease-out;
+}
+
+.hero__rock {
+  position: absolute;
+  left: 233px;
+  top: 621px;
+  width: 1067px;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+  /* Very subtle counter-parallax so the lamps read as floating in front of it. */
+  transform: translate3d(calc(var(--px, 0) * -4px), calc(var(--py, 0) * -2px), 0);
+}
+
+/* Image slide: full-bleed photo */
+.hero__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Static scrim so white header, text and controls stay legible over the bright photo. */
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgb(0 0 0 / 0.35) 0, rgb(0 0 0 / 0) 160px),
+    linear-gradient(90deg, rgb(0 0 0 / 0.45) 0, rgb(0 0 0 / 0.2) 560px, rgb(0 0 0 / 0) 900px);
+}
+
+/* Text */
+.hero__content {
+  position: absolute;
+  z-index: 2;
+  top: 334px;
+  left: 126px;
+  color: var(--color-white);
+  pointer-events: none;
+}
+
+.hero__label {
+  margin: 0 0 0 2px;
+  font-size: 11.75px;
+  line-height: 15px;
+}
+
+.hero__title {
+  margin: 12px 0 0;
+  font-size: 43px;
+  font-weight: 500;
+  line-height: 44px;
+  letter-spacing: -0.005em;
+}
+
+.hero__cta {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  margin-top: 25px;
+  padding: 0 20px 0 19px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--color-ink);
+  text-decoration: none;
+  background: var(--color-yellow);
+  pointer-events: auto;
+}
+
+.hero__cta:focus-visible {
+  outline: 1px solid var(--color-white);
+  outline-offset: 3px;
+}
+
+/* Arrows */
+.hero__arrow {
+  position: absolute;
+  z-index: 2;
+  top: 405px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--color-white);
+  background: rgb(0 0 0 / 0.19);
+  cursor: pointer;
+}
+
+.hero__arrow--prev {
+  left: 57px;
+}
+
+.hero__arrow--next {
+  right: 57px;
+}
+
+.hero__arrow svg {
+  display: block;
+  transition: transform var(--duration-hover) var(--ease);
+}
+
+.hero__arrow--prev:hover svg {
+  transform: translateX(-2px);
+}
+
+.hero__arrow--next:hover svg {
+  transform: translateX(2px);
+}
+
+.hero__arrow:focus-visible {
+  outline: 1px solid var(--color-white);
+  outline-offset: 3px;
+}
+
+/* Progress */
+.hero__progress {
+  position: absolute;
+  z-index: 2;
+  bottom: 23px;
+  left: 50%;
+  display: flex;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transform: translateX(-50%);
+}
+
+.hero__progress-item {
+  position: relative;
+  width: 48px;
+  height: 2px;
+  overflow: hidden;
+  background: rgb(255 255 255 / 0.5);
+}
+
+.hero__progress-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--color-yellow);
+  transform-origin: 0 50%;
+  animation: hero-progress var(--autoplay-interval) linear forwards;
+}
+
+@keyframes hero-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Rating badge */
+.hero__rating {
+  position: absolute;
+  z-index: 2;
+  right: 56px;
+  bottom: 25px;
+  display: flex;
+  align-items: center;
+  height: 34px;
+  margin: 0;
+  padding: 0 20px 0 18px;
+  border-radius: 999px;
+  color: var(--color-white);
+  background: rgb(0 0 0 / 0.37);
+  white-space: nowrap;
+}
+
+.hero__rating-score {
+  font-size: 16px;
+}
+
+.hero__rating-star {
+  display: block;
+  margin-left: 5px;
+  color: var(--color-star);
+}
+
+.hero__rating-text {
+  margin-left: 13px;
+  font-size: 9.5px;
+  color: rgb(255 255 255 / 0.85);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__slide,
+  .hero__slide.is-active,
+  .hero__media,
+  .hero__slide.is-active .hero__media,
+  .hero__arrow svg {
+    transition: none;
+  }
+
+  .hero__media,
+  .hero__rock {
+    transform: none;
+  }
+
+  /* No autoplay with reduced motion: the active segment is shown full. */
+  .hero__progress-fill {
+    animation: none;
+  }
+}
