@@ -1,4 +1,6 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Logo from './Logo.jsx'
+import { MEDIA, useMediaQuery } from '../media.js'
 import './Header.css'
 
 const NAV_ITEMS = [
@@ -69,43 +71,135 @@ function CartIcon() {
   )
 }
 
-export default function Header() {
+function MenuIcon() {
   return (
-    <header className="header">
+    <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
+      <path d="M2 5h16M2 10h16M2 15h16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
+      <path d="M4 4l12 12M16 4L4 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled])'
+
+// Below 1024 px the nav, search and "Stwórz swoją lampę" live in an off-canvas panel (#header-menu).
+// While open: body scroll is locked, focus is moved into and kept inside the panel, Esc / backdrop /
+// any link closes it, and focus returns to the menu button.
+function useMenu() {
+  const [open, setOpen] = useState(false)
+  const panelRef = useRef(null)
+  const toggleRef = useRef(null)
+  const belowLaptop = useMediaQuery(MEDIA.belowLaptop)
+
+  const close = useCallback(() => setOpen(false), [])
+
+  useEffect(() => {
+    if (!belowLaptop) setOpen(false)
+  }, [belowLaptop])
+
+  useEffect(() => {
+    if (!open) return undefined
+    const panel = panelRef.current
+    const toggle = toggleRef.current
+    const { overflow } = document.body.style
+    document.body.style.overflow = 'hidden'
+    panel.querySelector('.header__close')?.focus()
+
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setOpen(false)
+        return
+      }
+      if (event.key !== 'Tab') return
+      const items = [...panel.querySelectorAll(FOCUSABLE)]
+      const first = items[0]
+      const last = items[items.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = overflow
+      if (panel.contains(document.activeElement) || document.activeElement === document.body) toggle?.focus()
+    }
+  }, [open])
+
+  return { open, setOpen, close, panelRef, toggleRef, belowLaptop }
+}
+
+export default function Header() {
+  const { open, setOpen, close, panelRef, toggleRef, belowLaptop } = useMenu()
+  const dialogProps = belowLaptop ? { role: 'dialog', 'aria-modal': open ? 'true' : undefined, 'aria-label': 'Menu' } : {}
+
+  return (
+    <header className={`header${open ? ' is-open' : ''}`}>
       <a className="header__logo" href="/" aria-label="Sollux – strona główna">
         <Logo className="header__logo-svg" />
       </a>
 
-      <nav className="header__nav" aria-label="Menu główne">
-        <ul className="header__nav-list">
-          {NAV_ITEMS.map(({ label, dropdown }) => (
-            <li key={label}>
-              {dropdown ? (
-                <button className="header__nav-link" type="button" aria-haspopup="true" aria-expanded="false">
-                  {label}
-                  <ChevronIcon />
-                </button>
-              ) : (
-                <a className="header__nav-link" href="#">
-                  {label}
-                </a>
-              )}
-            </li>
-          ))}
-        </ul>
-      </nav>
+      <div className="header__backdrop" aria-hidden="true" onClick={close} />
 
-      <form className="header__search" role="search" onSubmit={(e) => e.preventDefault()}>
-        <input className="header__search-input" type="search" placeholder="Czego szukasz?" aria-label="Czego szukasz?" />
-        <button className="header__search-button" type="submit" aria-label="Szukaj">
-          <SearchIcon />
-        </button>
-      </form>
+      <div
+        className="header__panel"
+        id="header-menu"
+        ref={panelRef}
+        {...dialogProps}
+        onClick={(event) => {
+          if (event.target.closest('a')) close()
+        }}
+      >
+        <div className="header__panel-bar">
+          <Logo className="header__logo-svg" />
+          <button className="header__close" type="button" aria-label="Zamknij menu" onClick={close}>
+            <CloseIcon />
+          </button>
+        </div>
 
-      <a className="header__create" href="#">
-        <CubeIcon />
-        Stwórz swoją lampę
-      </a>
+        <nav className="header__nav" aria-label="Menu główne">
+          <ul className="header__nav-list">
+            {NAV_ITEMS.map(({ label, dropdown }) => (
+              <li key={label}>
+                {dropdown ? (
+                  <button className="header__nav-link" type="button" aria-haspopup="true" aria-expanded="false">
+                    {label}
+                    <ChevronIcon />
+                  </button>
+                ) : (
+                  <a className="header__nav-link" href="#">
+                    {label}
+                  </a>
+                )}
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <form className="header__search" role="search" onSubmit={(e) => e.preventDefault()}>
+          <input className="header__search-input" type="search" placeholder="Czego szukasz?" aria-label="Czego szukasz?" />
+          <button className="header__search-button" type="submit" aria-label="Szukaj">
+            <SearchIcon />
+          </button>
+        </form>
+
+        <a className="header__create" href="#">
+          <CubeIcon />
+          Stwórz swoją lampę
+        </a>
+      </div>
 
       <a className="header__icon-link header__icon-link--user" href="#" aria-label="Moje konto">
         <UserIcon />
@@ -113,6 +207,17 @@ export default function Header() {
       <a className="header__icon-link header__icon-link--cart" href="#" aria-label="Koszyk">
         <CartIcon />
       </a>
+      <button
+        className="header__toggle"
+        type="button"
+        ref={toggleRef}
+        aria-label="Menu"
+        aria-expanded={open}
+        aria-controls="header-menu"
+        onClick={() => setOpen((value) => !value)}
+      >
+        <MenuIcon />
+      </button>
     </header>
   )
 }

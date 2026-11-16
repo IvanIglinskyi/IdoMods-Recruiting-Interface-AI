@@ -1,6 +1,6 @@
 /* Features row: measured at 1508 px from design/components-design/features-tiles.png (×1.6774, page frame 899 px). */
 .features {
-  padding: 79px 0 0 139px;
+  padding: 79px 0 0 calc(139px + var(--bleed));
   color: var(--color-text);
 }
 
@@ -25,4 +25,46 @@
   font-size: 10.5px;
   line-height: 14px;
   color: var(--color-text-muted);
+}
+
+/* Laptop: five fluid columns. */
+@media (max-width: 1439.98px) {
+  .features {
+    padding: calc(40px + 39 * var(--fl)) calc(var(--gutter) + 13 * var(--fl)) 0;
+  }
+
+  .features__list {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 32px 24px;
+  }
+}
+
+/* Tablet: 3 + 2. */
+@media (max-width: 1023.98px) {
+  .features__list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Mobile: 2-column grid. */
+@media (max-width: 767.98px) {
+  .features {
+    padding-right: var(--gutter);
+    padding-left: var(--gutter);
+  }
+
+  .features__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 16px;
+  }
+
+  .features__title {
+    margin-top: 14px;
+    font-size: 15px;
+  }
+
+  .features__text {
+    font-size: 12px;
+    line-height: 16px;
+  }
 }

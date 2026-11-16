@@ -19,6 +19,23 @@
   --duration-slide-fade: 600ms;
   --duration-slide-scale: 800ms;
   --autoplay-interval: 3000ms;
+
+  /* Responsive layout (desktop-down; same values as BREAKPOINTS in src/media.js):
+       desktop  ≥ 1440       design values in px (1:1 at 1508)  — base rules, no media query
+       laptop   1024–1439    @media (max-width: 1439.98px)
+       tablet   768–1023     @media (max-width: 1023.98px)
+       mobile   320–767      @media (max-width: 767.98px)
+     Wider than 1508 px: backgrounds stay full-bleed, content sits in a centred 1508 px column.
+     --bleed is the extra side space on such screens (0 up to 1508 px); it contains a %, so it
+     resolves against the containing block of the element using it (always a full-width section). */
+  --page-max: 1508px;
+  --bleed: max(0px, (100% - var(--page-max)) / 2);
+  /* Fluid ramps (lengths of 0 → 1px): calc(A + (B - A) * var(--fl)) is A at 320 px and B at 1440 px,
+     so below-desktop values meet the design value at the desktop breakpoint. --lap ramps 1024 → 1440. */
+  --fl: calc((100vw - 320px) / 1120);
+  --lap: calc((100vw - 1024px) / 416);
+  /* Side gutter below desktop: 16 px at 320 → 126 px (design) at 1440. */
+  --gutter: calc(16px + 110 * var(--fl));
 }
 
 *,

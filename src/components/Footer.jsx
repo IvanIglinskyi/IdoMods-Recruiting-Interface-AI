@@ -1,4 +1,5 @@
 import Logo from './Logo.jsx'
+import { MEDIA, useMediaQuery } from '../media.js'
 import visaLogo from '../assets/footer/visa.png'
 import mastercardLogo from '../assets/footer/mastercard.png'
 import payuLogo from '../assets/footer/payu.png'
@@ -203,7 +204,17 @@ function LogoSlot({ name, src, width, height, offsetX }) {
   return <span className="footer__logo-slot footer__logo-slot--empty" role="img" aria-label={name} style={style} />
 }
 
+function ChevronIcon() {
+  return (
+    <svg className="footer__chevron" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+      <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 export default function Footer() {
+  const mobile = useMediaQuery(MEDIA.mobile)
+
   return (
     <footer className="footer">
       <div className="footer__top">
@@ -225,9 +236,8 @@ export default function Footer() {
         </div>
 
         <nav className="footer__nav" aria-label="Stopka">
-          {LINK_COLUMNS.map(({ title, links }) => (
-            <div className="footer__column" key={title}>
-              <h2 className="footer__heading">{title}</h2>
+          {LINK_COLUMNS.map(({ title, links }) => {
+            const list = (
               <ul className="footer__links">
                 {links.map((label) => (
                   <li key={label}>
@@ -237,8 +247,23 @@ export default function Footer() {
                   </li>
                 ))}
               </ul>
-            </div>
-          ))}
+            )
+            // Mobile: each column is a native disclosure (keyboard + screen reader support built in).
+            return mobile ? (
+              <details className="footer__column footer__column--accordion" key={title}>
+                <summary className="footer__summary">
+                  <h2 className="footer__heading">{title}</h2>
+                  <ChevronIcon />
+                </summary>
+                {list}
+              </details>
+            ) : (
+              <div className="footer__column" key={title}>
+                <h2 className="footer__heading">{title}</h2>
+                {list}
+              </div>
+            )
+          })}
         </nav>
       </div>
 

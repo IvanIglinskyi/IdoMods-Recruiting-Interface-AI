@@ -35,8 +35,10 @@
   transition: transform var(--duration-hover) ease-out;
 }
 
-.lamp:hover .lamp__body {
-  transform: scale(1.02);
+@media (hover: hover) {
+  .lamp:hover .lamp__body {
+    transform: scale(1.02);
+  }
 }
 
 .lamp:active .lamp__body {

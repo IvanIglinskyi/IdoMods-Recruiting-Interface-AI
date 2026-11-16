@@ -1,11 +1,16 @@
 /* Promo tiles: measured at 1508 px from design/components-design/features-tiles.png (×1.6774).
-   Grid 1258 px wide (x 126–1384): row 1 = 510 + 736, row 2 = 736 + 510, gap 12, rows 407 high, radius 20. */
+   Grid 1258 px wide (x 126–1384): row 1 = 510 + 736, row 2 = 736 + 510, gap 12, rows 407 high, radius 20.
+   Media geometry is written as calc(<design px> * var(--tk)): --tk is 1px on desktop (design values)
+   and the tile scale below it, so every composition scales as one piece. */
 .tiles {
+  --tk: 1px;
+
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   width: calc(126px + 1258px);
   margin-top: 64px;
+  margin-left: var(--bleed);
   padding: 0 0 67px 126px;
 }
 
@@ -61,8 +66,15 @@
   transition: transform 500ms ease-out;
 }
 
-.tile:hover .tile__media {
-  transform: scale(1.1);
+/* Hover effects only for hover-capable pointers (no sticky zoom after a tap). */
+@media (hover: hover) {
+  .tile:hover .tile__media {
+    transform: scale(1.1);
+  }
+
+  .tile:hover .tile__cta {
+    background-color: var(--color-button-hover);
+  }
 }
 
 .tile__img {
@@ -85,35 +97,45 @@
 
 /* B: colour wheel behind the laptop. Group box 443 × 349 at (351, 20). */
 .tile__media--config {
-  left: 351px;
-  top: 20px;
-  width: 443px;
-  height: 349px;
+  left: calc(351 * var(--tk));
+  top: calc(20 * var(--tk));
+  width: calc(443 * var(--tk));
+  height: calc(349 * var(--tk));
 }
 
 .tile__img--wheel {
   left: 0;
-  top: 68px;
-  width: 160px;
-  height: 160px;
+  top: calc(68 * var(--tk));
+  width: calc(160 * var(--tk));
+  height: calc(160 * var(--tk));
 }
 
 /* Laptop asset is cropped to its alpha box (incl. shadow); the bottom fades into the tile like in the design. */
 .tile__img--laptop {
-  left: 20px;
+  left: calc(20 * var(--tk));
   top: 0;
-  width: 423px;
-  height: 349px;
-  -webkit-mask-image: linear-gradient(#000 253px, rgb(0 0 0 / 0.6) 275px, rgb(0 0 0 / 0.35) 308px, transparent 339px);
-  mask-image: linear-gradient(#000 253px, rgb(0 0 0 / 0.6) 275px, rgb(0 0 0 / 0.35) 308px, transparent 339px);
+  width: calc(423 * var(--tk));
+  height: calc(349 * var(--tk));
+  -webkit-mask-image: linear-gradient(
+    #000 calc(253 * var(--tk)),
+    rgb(0 0 0 / 0.6) calc(275 * var(--tk)),
+    rgb(0 0 0 / 0.35) calc(308 * var(--tk)),
+    transparent calc(339 * var(--tk))
+  );
+  mask-image: linear-gradient(
+    #000 calc(253 * var(--tk)),
+    rgb(0 0 0 / 0.6) calc(275 * var(--tk)),
+    rgb(0 0 0 / 0.35) calc(308 * var(--tk)),
+    transparent calc(339 * var(--tk))
+  );
 }
 
 /* C: tablet held in a hand; its alpha fade matches the tile background. */
 .tile__media--catalog {
-  left: 334px;
-  top: 42px;
-  width: 383px;
-  height: 364px;
+  left: calc(334 * var(--tk));
+  top: calc(42 * var(--tk));
+  width: calc(383 * var(--tk));
+  height: calc(364 * var(--tk));
 }
 
 .tile__img--tablet {
@@ -124,24 +146,24 @@
 
 /* D: small phone (back, left) + large phone (front, right), both behind the text. Group 440 × 351 at (63, 56). */
 .tile__media--smart {
-  left: 63px;
-  top: 56px;
-  width: 440px;
-  height: 351px;
+  left: calc(63 * var(--tk));
+  top: calc(56 * var(--tk));
+  width: calc(440 * var(--tk));
+  height: calc(351 * var(--tk));
 }
 
 .tile__img--phone-small {
   left: 0;
   top: 0;
-  width: 180px;
-  height: 181px;
+  width: calc(180 * var(--tk));
+  height: calc(181 * var(--tk));
 }
 
 .tile__img--phone-large {
-  left: 110px;
-  top: 19px;
-  width: 330px;
-  height: 332px;
+  left: calc(110 * var(--tk));
+  top: calc(19 * var(--tk));
+  width: calc(330 * var(--tk));
+  height: calc(332 * var(--tk));
 }
 
 /* Text, bottom-left */
@@ -178,13 +200,161 @@
   transition: background-color 200ms var(--ease);
 }
 
-.tile:hover .tile__cta {
-  background-color: var(--color-button-hover);
-}
-
 .tile__cta:focus-visible {
   outline: 1px solid var(--tile-fg);
   outline-offset: 3px;
+}
+
+/* Laptop: the desktop grid scaled uniformly (narrow/wide proportions kept, --tk = grid width / 1258).
+   Three grid tracks 510 : 226 : 510 give row 1 = narrow + wide and row 2 = wide + narrow. */
+@media (max-width: 1439.98px) {
+  .tiles {
+    --tk: calc(100cqw / 1258);
+
+    container-type: inline-size;
+    display: grid;
+    grid-template-columns: 510fr 226fr 510fr;
+    width: auto;
+    margin: calc(40px + 24 * var(--fl)) 0 0;
+    padding: 0 var(--gutter) calc(40px + 27 * var(--fl));
+  }
+
+  .tile {
+    width: auto;
+    height: calc(407 * var(--tk));
+  }
+
+  .tile--thoro {
+    grid-column: 1;
+  }
+
+  .tile--config {
+    grid-column: 2 / 4;
+  }
+
+  .tile--catalog {
+    grid-column: 1 / 3;
+  }
+
+  .tile--smart {
+    grid-column: 3;
+  }
+
+  .tile__content {
+    left: calc(39 * var(--tk));
+    bottom: calc(39 * var(--tk));
+  }
+
+  .tile__label {
+    font-size: max(12px, calc(16 * var(--tk)));
+    line-height: 1.25;
+  }
+
+  .tile__title {
+    margin-top: calc(8 * var(--tk));
+    font-size: max(17px, calc(24.5 * var(--tk)));
+    line-height: 1.1;
+  }
+
+  .tile__cta {
+    margin-top: max(12px, calc(20 * var(--tk)));
+  }
+}
+
+/* Tablet (2 equal columns) and mobile (1 column): text on top, the media group centred below it
+   and standing on the tile's bottom edge as in the design; the photo tile keeps text over the photo.
+   --tk = min(1px, tile width / 530) (images are never upscaled). */
+@media (max-width: 1023.98px) {
+  .tiles {
+    --tile-w: calc((100cqw - 12px) / 2);
+    --tk: min(1px, calc(var(--tile-w) / 530));
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tile,
+  .tile--thoro,
+  .tile--config,
+  .tile--catalog,
+  .tile--smart {
+    grid-column: auto;
+  }
+
+  .tile {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: calc(480 * var(--tk));
+    padding-bottom: calc(var(--media-h, 0) * var(--tk));
+  }
+
+  .tile--thoro {
+    justify-content: flex-end;
+  }
+
+  .tile--config {
+    --media-w: 443;
+    --media-h: 387;
+  }
+
+  .tile--catalog {
+    --media-w: 383;
+    --media-h: 365;
+  }
+
+  .tile--smart {
+    --media-w: 440;
+    --media-h: 351;
+  }
+
+  .tile__media--config,
+  .tile__media--catalog,
+  .tile__media--smart {
+    top: auto;
+    left: calc(50% - var(--media-w) * var(--tk) / 2);
+  }
+
+  .tile__media--config {
+    bottom: calc(38 * var(--tk));
+  }
+
+  .tile__media--catalog {
+    bottom: calc(1 * var(--tk));
+  }
+
+  .tile__media--smart {
+    bottom: 0;
+  }
+
+  .tile__content {
+    position: static;
+    padding: calc(20px + 4 * var(--fl));
+  }
+
+  .tile__label {
+    font-size: 14px;
+  }
+
+  .tile__title {
+    margin-top: 6px;
+    font-size: calc(19px + 5.5 * var(--fl));
+  }
+
+  .tile__cta {
+    margin-top: 16px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .tiles {
+    --tile-w: 100cqw;
+
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tile__cta {
+    height: 40px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -63,3 +63,38 @@
   font-size: 13px;
   line-height: 16px;
 }
+
+/* Below desktop: fluid height, content centred vertically (as in the design, where the 222 px top
+   padding centres the block in 655 px), fluid heading. The canvas follows via ResizeObserver. */
+@media (max-width: 1439.98px) {
+  .shader-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: calc(420px + 235 * var(--fl));
+  }
+
+  .shader-section__content {
+    padding: 0 var(--gutter);
+  }
+
+  .shader-section__title {
+    font-size: calc(26px + 14 * var(--fl));
+    line-height: 1.15;
+  }
+
+  .shader-section__cta {
+    margin-top: calc(22px + 8 * var(--fl));
+  }
+}
+
+/* Mobile: the design line break would leave a one-word line; let the heading wrap evenly instead. */
+@media (max-width: 767.98px) {
+  .shader-section__title {
+    text-wrap: balance;
+  }
+
+  .shader-section__title br {
+    display: none;
+  }
+}

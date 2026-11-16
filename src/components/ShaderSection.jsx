@@ -91,7 +91,7 @@ export default function ShaderSection() {
     <section ref={sectionRef} className="shader-section" aria-labelledby="shader-section-title">
       <div className="shader-section__content">
         <h2 id="shader-section-title" className="shader-section__title">
-          Twoje wnętrze zasługuje na
+          Twoje wnętrze zasługuje na{' '}
           <br />
           wyjątkowe światło
         </h2>

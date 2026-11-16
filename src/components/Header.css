@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   height: 66px;
-  padding-left: 124px;
+  padding-left: calc(124px + var(--bleed));
   font-size: 10.5px;
   font-weight: 500;
   line-height: 1;
@@ -14,9 +14,12 @@
     color var(--duration-hover) var(--ease);
 }
 
-.header:hover {
-  color: var(--color-black);
-  background-color: var(--color-white);
+/* Hover state only for pointers that can hover (no sticky white header after a tap). */
+@media (hover: hover) {
+  .header:hover {
+    color: var(--color-black);
+    background-color: var(--color-white);
+  }
 }
 
 .header :where(a, button) {
@@ -113,4 +116,194 @@
 
 .header__icon-link--cart {
   margin-left: 25px;
+}
+
+/* Menu panel: a plain wrapper (display: contents) on desktop/laptop; an off-canvas dialog below 1024 px. */
+.header__panel {
+  display: contents;
+}
+
+.header__toggle,
+.header__panel-bar,
+.header__backdrop {
+  display: none;
+}
+
+/* Laptop: same row, spacing and search width shrink so everything fits down to 1024 px. */
+@media (max-width: 1439.98px) {
+  .header {
+    padding-right: calc(24px + 100 * var(--lap));
+    padding-left: calc(32px + 92 * var(--lap));
+  }
+
+  .header__nav {
+    margin-left: calc(24px + 25 * var(--lap));
+  }
+
+  .header__nav-list {
+    gap: calc(14px + 13 * var(--lap));
+  }
+
+  .header__search {
+    flex-shrink: 1;
+    width: calc(200px + 91 * var(--lap));
+    min-width: 140px;
+    margin-left: calc(24px + 27 * var(--lap));
+  }
+
+  .header__create {
+    margin-left: calc(24px + 40 * var(--lap));
+  }
+
+  .header__icon-link--user {
+    margin-left: calc(18px + 13 * var(--lap));
+  }
+
+  .header__icon-link--cart {
+    margin-left: calc(16px + 9 * var(--lap));
+  }
+}
+
+/* Tablet + mobile: logo, account, cart and a menu button; nav, search and "Stwórz swoją lampę" move into the panel. */
+@media (max-width: 1023.98px) {
+  .header {
+    padding-right: calc(var(--gutter) - 10px);
+    padding-left: var(--gutter);
+  }
+
+  .header__icon-link,
+  .header__toggle {
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+  }
+
+  .header__icon-link--user {
+    margin-left: auto;
+  }
+
+  .header__icon-link--cart,
+  .header__toggle {
+    margin-left: 2px;
+  }
+
+  .header__toggle {
+    display: inline-flex;
+  }
+
+  .header__panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    width: min(400px, 100%);
+    padding: 0 var(--gutter) 32px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    font-size: 16px;
+    white-space: normal;
+    color: var(--color-text);
+    background: var(--color-white);
+    visibility: hidden;
+    transform: translateX(100%);
+    transition:
+      transform var(--duration-hover) var(--ease),
+      visibility 0s var(--duration-hover);
+  }
+
+  .header__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9;
+    display: block;
+    background: rgb(0 0 0 / 0.45);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity var(--duration-hover) var(--ease),
+      visibility 0s var(--duration-hover);
+  }
+
+  .header.is-open .header__panel,
+  .header.is-open .header__backdrop {
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .header.is-open .header__panel {
+    transform: none;
+  }
+
+  .header.is-open .header__backdrop {
+    opacity: 1;
+  }
+
+  .header__panel-bar {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    height: 66px;
+    margin-right: -10px;
+  }
+
+  .header__close {
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+  }
+
+  .header__panel .header__nav {
+    margin: 8px 0 0;
+  }
+
+  .header__panel .header__nav-list {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .header__panel .header__nav-link {
+    justify-content: space-between;
+    width: 100%;
+    min-height: 48px;
+    border-bottom: 1px solid #ededed;
+  }
+
+  .header__panel .header__chevron {
+    width: 10px;
+    height: 10px;
+    transform: rotate(-90deg);
+  }
+
+  .header__panel .header__search {
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+    margin: 24px 0 0;
+  }
+
+  .header__panel .header__search-button {
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-right: -12px;
+  }
+
+  .header__panel .header__create {
+    gap: 10px;
+    min-height: 48px;
+    margin: 16px 0 0;
+    font-size: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header__panel,
+  .header__backdrop {
+    transition: none;
+  }
 }

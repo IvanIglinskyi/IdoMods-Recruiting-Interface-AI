@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Header from './Header.jsx'
+import { MEDIA, useMediaQuery } from '../media.js'
 import Lamps from './Lamps.jsx'
 import rock from '../assets/rock.png'
 import interior from '../assets/slider2.jpg'
@@ -29,20 +30,95 @@ const SLIDES = [
   },
 ]
 
-function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+// The lamps composition is a fixed 1508 × 846 stage (design px). It is scaled as one unit so lamps,
+// light layers and rock stay aligned: scale = min(1, heroWidth / --hero-focus), where --hero-focus
+// (CSS, per breakpoint) is the stage width that must stay visible. The stage is centred horizontally
+// and sits on the hero's bottom edge. Applied as .is-fitted + an inline transform on .hero__stage.
+const STAGE_WIDTH = 1508
+
+function useStageFit(ref) {
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return undefined
+
+    const fit = () => {
+      const width = el.clientWidth
+      const focus = parseFloat(getComputedStyle(el).getPropertyValue('--hero-focus')) || STAGE_WIDTH
+      const scale = Math.min(1, width / focus)
+      const x = (width - STAGE_WIDTH * scale) / 2
+      const stage = el.querySelector('.hero__stage')
+      if (!stage) return
+      // At the design width the stage stays display: contents (no box, no transform), so the
+      // 1508 px rendering is identical to the fixed-width layout.
+      const fitted = !(scale === 1 && Math.abs(x) < 0.005)
+      stage.classList.toggle('is-fitted', fitted)
+      stage.style.transform = fitted ? `translateX(${x.toFixed(2)}px) scale(${scale.toFixed(5)})` : ''
+    }
+
+    fit()
+    const observer = new ResizeObserver(fit)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [ref])
+}
+
+// Horizontal swipe (touch / pen) → previous / next slide. Vertical scrolling stays native (touch-action: pan-y).
+const SWIPE_THRESHOLD = 40
+
+function useSwipe(ref, onSwipe) {
+  // Latest callback without re-binding the listeners (a gesture may span an autoplay slide change).
+  const onSwipeRef = useRef(onSwipe)
+  useEffect(() => {
+    onSwipeRef.current = onSwipe
+  })
 
   useEffect(() => {
-    const query = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const onChange = () => setReduced(query.matches)
-    query.addEventListener('change', onChange)
-    return () => query.removeEventListener('change', onChange)
-  }, [])
+    const el = ref.current
+    if (!el) return undefined
 
-  return reduced
+    let start = null
+    let swipedAt = -Infinity
+
+    const onDown = (event) => {
+      if (event.pointerType === 'mouse' || !event.isPrimary || event.target.closest('.header')) return
+      start = { x: event.clientX, y: event.clientY, id: event.pointerId }
+    }
+    const onUp = (event) => {
+      if (!start || event.pointerId !== start.id) return
+      const dx = event.clientX - start.x
+      const dy = event.clientY - start.y
+      start = null
+      if (Math.abs(dx) >= SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
+        swipedAt = event.timeStamp
+        onSwipeRef.current(dx < 0 ? 1 : -1)
+      }
+    }
+    const onCancel = () => {
+      start = null
+    }
+    // A swipe that ends on a lamp must not also toggle it (only the click right after the swipe is dropped).
+    const onClick = (event) => {
+      if (event.timeStamp - swipedAt > 400) return
+      swipedAt = -Infinity
+      event.preventDefault()
+      event.stopPropagation()
+    }
+
+    el.addEventListener('pointerdown', onDown)
+    el.addEventListener('pointerup', onUp)
+    el.addEventListener('pointercancel', onCancel)
+    el.addEventListener('click', onClick, true)
+    return () => {
+      el.removeEventListener('pointerdown', onDown)
+      el.removeEventListener('pointerup', onUp)
+      el.removeEventListener('pointercancel', onCancel)
+      el.removeEventListener('click', onClick, true)
+    }
+  }, [ref])
 }
 
 // Smoothed cursor position (-1…1 from the hero centre) written to --px / --py on the hero.
+// Mouse only: disabled for touch-first devices (no hover / coarse pointer).
 function useCursorParallax(ref, enabled) {
   useEffect(() => {
     const el = ref.current
@@ -64,6 +140,7 @@ function useCursorParallax(ref, enabled) {
       if (!frame) frame = requestAnimationFrame(tick)
     }
     const onMove = (event) => {
+      if (event.pointerType !== 'mouse') return
       const rect = el.getBoundingClientRect()
       target.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
       target.y = ((event.clientY - rect.top) / rect.height) * 2 - 1
@@ -112,7 +189,8 @@ function StarIcon() {
 
 export default function Hero() {
   const heroRef = useRef(null)
-  const reducedMotion = usePrefersReducedMotion()
+  const reducedMotion = useMediaQuery(MEDIA.reducedMotion)
+  const finePointer = useMediaQuery(MEDIA.finePointer)
   const [index, setIndex] = useState(0)
   // Bumped on every slide change so the progress animation restarts even when the index repeats.
   const [cycle, setCycle] = useState(0)
@@ -131,7 +209,9 @@ export default function Hero() {
     return () => clearTimeout(timer)
   }, [index, cycle, reducedMotion, goTo])
 
-  useCursorParallax(heroRef, !reducedMotion)
+  useStageFit(heroRef)
+  useSwipe(heroRef, (step) => goTo(index + step))
+  useCursorParallax(heroRef, !reducedMotion && finePointer)
 
   return (
     <section className="hero" ref={heroRef} aria-roledescription="karuzela" aria-label="Bestsellery SOLLUX">
@@ -152,10 +232,10 @@ export default function Hero() {
             >
               <div className="hero__media">
                 {slide.type === 'lamps' ? (
-                  <>
+                  <div className="hero__stage">
                     <img className="hero__rock" src={rock} alt="" draggable="false" />
                     <Lamps lit={litLamps} onToggle={toggleLamp} />
-                  </>
+                  </div>
                 ) : (
                   <img className="hero__image" src={slide.image} alt="" draggable="false" />
                 )}

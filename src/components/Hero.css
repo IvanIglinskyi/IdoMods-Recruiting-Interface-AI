@@ -1,10 +1,15 @@
 /* Hero: fixed-width composition measured at 1508 × 846 (design/components-design/hero.png ×1.6436).
    Each slide owns its background (lamps slide: CSS gradient + cut-outs; image slide: cover photo). */
 .hero {
+  /* Stage width (design px) that must stay visible; read by useStageFit in Hero.jsx. */
+  --hero-focus: 1440;
+
   position: relative;
   height: 846px;
   overflow: hidden;
   background: var(--color-ink);
+  /* Horizontal swipes go to the slider, vertical ones scroll the page. */
+  touch-action: pan-y;
 }
 
 .hero > .header {
@@ -49,6 +54,24 @@
   transition: transform var(--duration-slide-scale) ease-out;
 }
 
+/* Lamps composition: fixed 1508 × 846 design stage, scaled as one unit, centred horizontally and
+   standing on the hero's bottom edge (useStageFit adds .is-fitted and sets the transform inline).
+   At the design width (scale 1, offset 0) the stage generates no box at all (display: contents),
+   so rock and lamps render exactly as in the fixed 1508 px layout. */
+.hero__stage {
+  display: contents;
+}
+
+.hero__stage.is-fitted {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  display: block;
+  width: 1508px;
+  height: 846px;
+  transform-origin: 0 100%;
+}
+
 .hero__rock {
   position: absolute;
   left: 233px;
@@ -86,7 +109,7 @@
   position: absolute;
   z-index: 2;
   top: 334px;
-  left: 126px;
+  left: calc(126px + var(--bleed));
   color: var(--color-white);
   pointer-events: none;
 }
@@ -142,11 +165,11 @@
 }
 
 .hero__arrow--prev {
-  left: 57px;
+  left: calc(57px + var(--bleed));
 }
 
 .hero__arrow--next {
-  right: 57px;
+  right: calc(57px + var(--bleed));
 }
 
 .hero__arrow svg {
@@ -154,12 +177,14 @@
   transition: transform var(--duration-hover) var(--ease);
 }
 
-.hero__arrow--prev:hover svg {
-  transform: translateX(-2px);
-}
+@media (hover: hover) {
+  .hero__arrow--prev:hover svg {
+    transform: translateX(-2px);
+  }
 
-.hero__arrow--next:hover svg {
-  transform: translateX(2px);
+  .hero__arrow--next:hover svg {
+    transform: translateX(2px);
+  }
 }
 
 .hero__arrow:focus-visible {
@@ -210,7 +235,7 @@
 .hero__rating {
   position: absolute;
   z-index: 2;
-  right: 56px;
+  right: calc(56px + var(--bleed));
   bottom: 25px;
   display: flex;
   align-items: center;
@@ -237,6 +262,100 @@
   margin-left: 13px;
   font-size: 9.5px;
   color: rgb(255 255 255 / 0.85);
+}
+
+/* Laptop + tablet: the hero keeps the composition's proportions (stage scale = width / 1440, so it
+   meets the desktop layout at 1440 px); text and controls follow the fluid gutter. */
+@media (max-width: 1439.98px) {
+  .hero {
+    height: auto;
+    aspect-ratio: 1440 / 846;
+  }
+
+  .hero__content {
+    top: 39.48%;
+    left: var(--gutter);
+  }
+
+  .hero__title {
+    font-size: calc(30px + 13 * var(--fl));
+    line-height: 1.024;
+  }
+
+  .hero__arrow {
+    top: 47.87%;
+  }
+
+  .hero__arrow--prev {
+    left: calc(16px + 41 * var(--fl));
+  }
+
+  .hero__arrow--next {
+    right: calc(16px + 41 * var(--fl));
+  }
+
+  .hero__rating {
+    right: calc(16px + 40 * var(--fl));
+    bottom: calc(14px + 11 * var(--fl));
+  }
+
+  .hero__progress {
+    bottom: calc(14px + 9 * var(--fl));
+  }
+}
+
+/* Tablet: the arrows move to the bottom-left corner so they never sit on the heading. */
+@media (max-width: 1023.98px) {
+  .hero__arrow {
+    top: auto;
+    bottom: 12px;
+  }
+
+  .hero__arrow--prev {
+    left: var(--gutter);
+  }
+
+  .hero__arrow--next {
+    right: auto;
+    left: calc(var(--gutter) + 44px);
+  }
+}
+
+/* Mobile: taller than wide. Text at the top, the composition (cropped to its central 1000 px)
+   stands at the bottom; arrows give way to swipe; rating badge centred above the progress bar. */
+@media (max-width: 767.98px) {
+  .hero {
+    --hero-focus: 900;
+
+    aspect-ratio: auto;
+    /* Viewport-tall (capped), but always tall enough for the text block + the scaled stage (846 / 900 = 94vw). */
+    height: max(clamp(560px, 100vh, 720px), calc(94vw + 250px));
+    height: max(clamp(560px, 100svh, 720px), calc(94vw + 250px));
+  }
+
+  .hero__content {
+    top: 96px;
+    right: var(--gutter);
+  }
+
+  .hero__arrow {
+    display: none;
+  }
+
+  .hero__rating {
+    right: auto;
+    bottom: 34px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .hero__rating-text {
+    font-size: 11px;
+  }
+
+  .hero__progress {
+    bottom: 16px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
